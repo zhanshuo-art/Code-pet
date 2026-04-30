@@ -1,0 +1,109 @@
+{
+  "name": "code-pet",
+  "displayName": "Code Pet",
+  "version": "0.0.2",
+  "description": "Spawn an interactive pet inside VS Code.",
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "code-pet",
+    "companion",
+    "cute",
+    "interactive",
+    "pet"
+  ],
+  "homepage": "https://github.com/zhanshuo-art/code-pet#readme",
+  "bugs": {
+    "url": "https://github.com/zhanshuo-art/code-pet/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhanshuo-art/code-pet.git"
+  },
+  "publisher": "zhanshuo-art",
+  "main": "./dist/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run bundle",
+    "ci": "npm run check-types && npm run lint && npm run format:check && npm run package",
+    "watch": "npm-run-all -p watch:*",
+    "watch:bundle": "node esbuild.mjs --watch",
+    "watch:types": "tsc --noEmit --watch --project tsconfig.json",
+    "bundle": "node esbuild.mjs",
+    "package": "npm run check-types && node esbuild.mjs --production",
+    "vsix": "node scripts/package-vsix.mjs",
+    "process-assets": "node scripts/process-assets.mjs",
+    "check-types": "tsc --noEmit --project tsconfig.json",
+    "lint": "oxlint src media/code-pet.js scripts --tsconfig tsconfig.json",
+    "format": "oxfmt --write src media/code-pet.js scripts package.json README.md esbuild.mjs",
+    "format:check": "oxfmt --check src media/code-pet.js scripts package.json README.md esbuild.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/vscode": "^1.116.0",
+    "@vscode/vsce": "^3.9.1",
+    "esbuild": "^0.28.0",
+    "npm-run-all": "^4.1.5",
+    "oxfmt": "^0.46.0",
+    "oxlint": "^1.61.0",
+    "pngjs": "^7.0.0",
+    "typescript": "^6.0.3"
+  },
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "type": "webview",
+          "id": "code-pet.view",
+          "name": "Code Pet"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "code-pet.spawn",
+        "title": "Spawn Pet",
+        "category": "Code Pet"
+      },
+      {
+        "command": "code-pet.resetPosition",
+        "title": "Reset Pet Position",
+        "category": "Code Pet"
+      }
+    ],
+    "configuration": {
+      "title": "Code Pet",
+      "properties": {
+        "code-pet.sound.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Code Pet reaction sounds."
+        },
+        "code-pet.sound.volume": {
+          "type": "number",
+          "default": 45,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Code Pet reaction sound volume, as a percentage."
+        }
+      }
+    }
+  },
+  "activationEvents": [
+    "onCommand:code-pet.resetPosition",
+    "onCommand:code-pet.spawn",
+    "onStartupFinished",
+    "onView:code-pet.view",
+    "onWebviewPanel:code-pet.panel"
+  ],
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#2f2530",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.116.0"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/*
+!dist/extension.js
+!dist/extension.js.map
+*.vsix
+.vscode-test/
+.DS_Store
+media/images/sheet1-no-background.png
+media/images/sheet2-no-background.png

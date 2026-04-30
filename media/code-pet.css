@@ -1,0 +1,425 @@
+:root {
+  color-scheme: light dark;
+  --room-wall-top: color-mix(in srgb, var(--vscode-editor-background) 72%, #5c4d62 28%);
+  --room-wall-bottom: color-mix(in srgb, var(--vscode-editor-background) 68%, #78604e 32%);
+  --room-floor: color-mix(in srgb, var(--vscode-editor-background) 58%, #6f5137 42%);
+  --room-floor-dark: color-mix(in srgb, var(--vscode-editor-background) 72%, #3f302a 28%);
+  --room-baseboard: color-mix(in srgb, var(--vscode-editor-foreground) 14%, #b27b55 86%);
+  --room-background-image: none;
+  --room-background-size: auto 360px;
+  --room-floor-height: clamp(74px, 28vh, 190px);
+  --pet-focus: var(--vscode-focusBorder);
+  --pet-size: 154px;
+  --pet-pivot-x: .5;
+  --pet-pivot-y: 1;
+  --pet-direction: 1;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+}
+
+body {
+  font-family: var(--vscode-font-family);
+}
+
+.pet-stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-width: 0;
+  min-height: 180px;
+  overflow: hidden;
+  background:
+    linear-gradient(to bottom, color-mix(in srgb, #000000 3%, transparent), color-mix(in srgb, #000000 16%, transparent)),
+    radial-gradient(ellipse at 74% 16%, color-mix(in srgb, #ffd08a 12%, transparent), transparent 36%),
+    linear-gradient(180deg, var(--room-wall-top), var(--room-wall-bottom));
+  background-position:
+    center,
+    center,
+    center;
+  background-repeat: no-repeat;
+  background-size:
+    cover,
+    cover,
+    cover;
+  cursor: default;
+}
+
+.room-background-layer {
+  position: absolute;
+  inset: 20px 0 -20px;
+  z-index: 0;
+  background-image: var(--room-background-image);
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-size: var(--room-background-size);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 340ms ease;
+}
+
+.room-background-layer.is-active {
+  opacity: 1;
+}
+
+.pet-stage::before {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--room-floor-height);
+  background:
+    linear-gradient(to bottom, color-mix(in srgb, #ffffff 7%, transparent), transparent 22%),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, #ffffff 4%, transparent) 0 1px,
+      transparent 1px 54px
+    ),
+    linear-gradient(150deg, var(--room-floor), var(--room-floor-dark));
+  border-top: 2px solid var(--room-baseboard);
+  box-shadow:
+    inset 0 10px 22px color-mix(in srgb, #ffffff 5%, transparent),
+    0 -3px 12px color-mix(in srgb, #000000 18%, transparent);
+  clip-path: polygon(0 8px, 100% 0, 100% 100%, 0 100%);
+  content: "";
+  pointer-events: none;
+  transform: skewY(-1deg);
+  transform-origin: bottom left;
+  z-index: 0;
+}
+
+.pet-stage.has-room-background::before {
+  opacity: 0;
+}
+
+.pet-stage::after {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% calc(100% - var(--room-floor-height) * .55), color-mix(in srgb, #000000 13%, transparent), transparent 26%),
+    linear-gradient(to bottom, transparent 60%, color-mix(in srgb, #000000 14%, transparent));
+  content: "";
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.background-controls {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  z-index: 4;
+  box-sizing: border-box;
+  display: flex;
+  gap: 4px;
+  max-width: calc(100% - 14px);
+  opacity: .48;
+  transition: opacity 160ms ease;
+}
+
+.background-controls:hover,
+.background-controls:focus-within {
+  opacity: .9;
+}
+
+.background-control {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, #ffffff 22%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #17151a 72%, transparent);
+  box-shadow: 0 1px 5px color-mix(in srgb, #000000 34%, transparent);
+  color: color-mix(in srgb, #ffffff 92%, transparent);
+  cursor: pointer;
+  font: 700 16px/1 var(--vscode-font-family);
+  place-items: center;
+}
+
+.background-control:hover {
+  background: color-mix(in srgb, #17151a 60%, var(--vscode-button-background) 40%);
+}
+
+.background-control.is-muted {
+  color: color-mix(in srgb, #ffffff 50%, transparent);
+}
+
+.background-control:focus-visible {
+  outline: 1px solid var(--pet-focus);
+  outline-offset: 2px;
+}
+
+.pet {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  z-index: 3;
+  width: var(--pet-size);
+  height: var(--pet-size);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  outline: none;
+  transform: translate(-50%, -50%);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pet:focus,
+.pet:focus-visible {
+  outline: none;
+}
+
+.pet.is-dragging {
+  cursor: grabbing;
+}
+
+.pet-hover-layer,
+.pet-motion-layer,
+.pet-direction-layer,
+.pet-sprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pet-hover-layer,
+.pet-motion-layer,
+.pet-direction-layer {
+  transform-origin: calc(var(--pet-pivot-x) * 100%) calc(var(--pet-pivot-y) * 100%);
+}
+
+.pet.is-idle .pet-motion-layer,
+.pet.is-bored .pet-motion-layer,
+.pet.is-sleep .pet-motion-layer {
+  transform-origin: calc(var(--pet-pivot-x) * 100%) 100%;
+}
+
+.pet.is-hovering .pet-hover-layer {
+  animation: qutedva-hover-bounce 320ms ease-out;
+}
+
+.pet.is-intro .pet-hover-layer {
+  animation: qutedva-intro-bounce 720ms cubic-bezier(.16, .9, .22, 1.18);
+}
+
+.pet-sprite {
+  object-fit: contain;
+  image-rendering: auto;
+  filter: drop-shadow(0 16px 18px color-mix(in srgb, #000000 24%, transparent));
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pet.is-idle .pet-motion-layer,
+.pet.is-bored .pet-motion-layer {
+  animation: qutedva-breathe 2.8s ease-in-out infinite;
+}
+
+.pet.is-sleep .pet-motion-layer {
+  animation: qutedva-sleep-breathe 4.8s ease-in-out infinite;
+}
+
+.pet.is-headpat .pet-motion-layer {
+  animation: qutedva-headpat-bounce 560ms cubic-bezier(.18, .88, .24, 1.18);
+}
+
+.pet.is-dropRecovery .pet-motion-layer {
+  animation: qutedva-drop-recovery 520ms cubic-bezier(.2, .82, .24, 1);
+}
+
+.pet.is-cheering .pet-motion-layer,
+.pet.is-wow .pet-motion-layer {
+  animation: qutedva-rapid-bounce 460ms ease-in-out infinite;
+}
+
+.pet.is-dragging .pet-motion-layer {
+  animation: none;
+}
+
+.pet.is-wandering .pet-hover-layer {
+  animation: qutedva-wander-step 520ms ease-in-out infinite;
+}
+
+.pet-direction-layer {
+  transform: scaleX(var(--pet-direction));
+}
+
+.pet-shadow {
+  position: absolute;
+  left: 50%;
+  top: calc(52% + var(--pet-size) * .38);
+  z-index: 2;
+  width: calc(var(--pet-size) * .56);
+  height: calc(var(--pet-size) * .08);
+  border-radius: 999px;
+  background: color-mix(in srgb, #000000 24%, transparent);
+  filter: blur(9px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+@keyframes qutedva-hover-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  42% {
+    transform: translateY(-2px) scale(1.008);
+  }
+
+  68% {
+    transform: translateY(.5px) scale(.998);
+  }
+}
+
+@keyframes qutedva-intro-bounce {
+  0% {
+    opacity: 0;
+    transform: translateY(34px) scaleX(.82) scaleY(1.12);
+  }
+
+  42% {
+    opacity: 1;
+    transform: translateY(-12px) scaleX(1.08) scaleY(.94);
+  }
+
+  66% {
+    transform: translateY(5px) scaleX(.98) scaleY(1.04);
+  }
+
+  84% {
+    transform: translateY(-3px) scaleX(1.01) scaleY(.99);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+}
+
+@keyframes qutedva-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+
+  45% {
+    transform: translateY(2px) scaleX(1.018) scaleY(.984);
+  }
+
+  70% {
+    transform: translateY(-1px) scaleX(.994) scaleY(1.008);
+  }
+}
+
+@keyframes qutedva-sleep-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+
+  50% {
+    transform: translateY(3px) scaleX(1.012) scaleY(.99);
+  }
+}
+
+@keyframes qutedva-headpat-bounce {
+  0% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+
+  18% {
+    transform: translateY(8px) scaleX(1.11) scaleY(.86);
+  }
+
+  42% {
+    transform: translateY(-15px) scaleX(.9) scaleY(1.16);
+  }
+
+  64% {
+    transform: translateY(4px) scaleX(1.05) scaleY(.94);
+  }
+
+  82% {
+    transform: translateY(-4px) scaleX(.98) scaleY(1.04);
+  }
+
+  100% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+}
+
+@keyframes qutedva-drop-recovery {
+  0% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+
+  22% {
+    transform: translateY(9px) scaleX(1.2) scaleY(.74);
+  }
+
+  48% {
+    transform: translateY(-3px) scaleX(.96) scaleY(1.04);
+  }
+
+  72% {
+    transform: translateY(2px) scaleX(1.035) scaleY(.97);
+  }
+
+  100% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+}
+
+@keyframes qutedva-rapid-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+
+  25% {
+    transform: translateY(-3px) scaleX(.99) scaleY(1.025);
+  }
+
+  50% {
+    transform: translateY(1px) scaleX(1.018) scaleY(.985);
+  }
+
+  75% {
+    transform: translateY(-2px) scaleX(.996) scaleY(1.012);
+  }
+}
+
+@keyframes qutedva-wander-step {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(-2px) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  75% {
+    transform: translateY(-1px) rotate(1deg);
+  }
+}

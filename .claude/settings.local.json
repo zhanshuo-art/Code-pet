@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//e/steam_game/liang_huang/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
